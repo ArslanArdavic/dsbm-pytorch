@@ -9,15 +9,16 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from functools import partial
 import copy
-import ot as pot
+import os
 
 from typing import List, Optional, Tuple
 import hydra
 import pytorch_lightning as pl
 from omegaconf import DictConfig
 
+from bridge.runners.logger import WandbLogger
 
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 dataset_size = 10000
 test_dataset_size = 10000
 lr = 1e-4
@@ -489,6 +490,14 @@ def train(cfg: DictConfig):
 
   a = cfg.a
   dim = cfg.dim
+
+  logger = WandbLogger(
+    project="dsbm-gaussian",
+    name=f"{cfg.model_name}_dim{dim}_seed{cfg.seed}",
+    entity=os.environ["WANDB_ENTITY"],
+    config=dict(cfg) 
+  )
+  
   initial_model = Normal(-a * torch.ones((dim, )), 1)
   target_model = Normal(a * torch.ones((dim, )), 1)
   
@@ -618,6 +627,11 @@ def train(cfg: DictConfig):
           result_list_ode_100['mean'].append(traj_ode_100[-1].mean(0).mean(0).item())
           result_list_ode_100['var'].append(traj_ode_100[-1].var(0).mean(0).item())
 
+      logger.log_metrics({
+          "mean": result_list['mean'][-1],
+          "var":  result_list['var'][-1],
+      }, step=it)
+
       # first_it = False
       it += 1
 
@@ -655,9 +669,10 @@ def train(cfg: DictConfig):
 
 @hydra.main(config_path="conf", config_name="gaussian.yaml")
 def main(cfg: DictConfig) -> Optional[float]:
+  
+    print("Device: ", device)
     # train the model
     train(cfg)
-
 
 if __name__ == "__main__":
     main()

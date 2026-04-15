@@ -134,10 +134,10 @@ experiments/
 
 /data/
 
-/slurm/
-
 slurm*.sh
 
 bridge.sif
 
 sylabs-token
+
+.vscode/
