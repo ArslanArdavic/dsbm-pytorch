@@ -3,7 +3,7 @@
 #SBATCH --partition=dev-g
 #SBATCH --job-name=mnist
 #SBATCH --output=slurm/log/mnist_%j.out
-#SBATCH --error=slurm/log/mnist%j.err
+#SBATCH --error=slurm/log/mnist_%j.err
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1            # Number of GPUs per node (max of 8)
 #SBATCH --ntasks=1          
@@ -25,7 +25,7 @@ export MIOPEN_USER_DB=$MIOPEN_DIR/config
 export WANDB_API_KEY="60eae699ddc5a31f103b2c7be45a2c4115cae2bd"
 export WANDB_ENTITY="arda-arslan-allab"
 
-SIF=/project/project_465002822/containers/graph-found-20260401.sif
+SIF=/project/project_465002822/containers/dsbm-pytorch-20260421.sif
 
 # Tell RCCL to use Slingshot interfaces and GPU RDMA
 export NCCL_SOCKET_IFNAME=hsn0,hsn1,hsn2,hsn3
