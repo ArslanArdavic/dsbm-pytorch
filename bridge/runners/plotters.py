@@ -72,7 +72,7 @@ class Plotter(object):
                                          mean_final=mean_final, var_final=var_final)
 
             if use_cache and not self.ipf.cdsb:
-                self.ipf.accelerator.print("Using cached data for training set evaluation")
+                print("Using cached data for training set evaluation")
                 fp = np.load(cache_filepath_npy[0], mmap_mode="r")
                 all_x = torch.from_numpy(fp[:self.ipf.test_npar])
                 if fb == 'f':
@@ -281,15 +281,9 @@ class ImPlotter(Plotter):
         super().__init__(ipf, args, im_dir=im_dir, gif_dir=gif_dir)
         self.num_plots_grid = 100
 
-        if self.ipf.accelerator.is_main_process:
-            try:
-                self.metrics_dict = {"fid": FID().to(self.ipf.device)}
-            except ModuleNotFoundError:
-                self.metrics_dict = {}
-        else:
-            self.metrics_dict = {}
+        self.metrics_dict = {"fid": FID().to(self.ipf.device)}
 
-        if self.dataset == "CIFAR10" and "fid" in self.metrics_dict:
+        if self.dataset == "CIFAR10":
             data_dir = hydra.utils.to_absolute_path(args.paths.data_dir_name)
             root = os.path.join(data_dir, 'cifar10')
             fid_stats = torch.load(os.path.join(root, 'fid_stats.pt'))

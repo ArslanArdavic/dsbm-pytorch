@@ -112,10 +112,7 @@ class IPF_DBDSB:
         self.stride_log = self.args.log_stride
 
     def get_logger(self, name='logs'):
-        if self.accelerator.is_main_process:
-            return get_logger(self.args, name)
-        from .runners.logger import Logger
-        return Logger()
+        return get_logger(self.args, name)
 
     def get_plotter(self):
         return get_plotter(self, self.args)
@@ -132,7 +129,7 @@ class IPF_DBDSB:
         if self.args.get('checkpoint_run', False):
             self.resume, self.checkpoint_it, self.checkpoint_pass, self.step = \
                 True, self.args.checkpoint_it, self.args.checkpoint_pass, self.args.checkpoint_iter
-            self.accelerator.print(f"Resuming training at iter {self.checkpoint_it} {self.checkpoint_pass} step {self.step}")
+            print(f"Resuming training at iter {self.checkpoint_it} {self.checkpoint_pass} step {self.step}")
 
             self.checkpoint_b = hydra.utils.to_absolute_path(self.args.checkpoint_b)
             self.sample_checkpoint_b = hydra.utils.to_absolute_path(self.args.sample_checkpoint_b)
@@ -158,7 +155,7 @@ class IPF_DBDSB:
                     self.checkpoint_pass, self.checkpoint_it = self.compute_prev_it(self.checkpoint_pass, self.checkpoint_it)
                     self.step = self.compute_max_iter(self.checkpoint_pass, self.checkpoint_it) + 1
 
-                self.accelerator.print(f"Resuming training at iter {self.checkpoint_it} {self.checkpoint_pass} step {self.step}")
+                print(f"Resuming training at iter {self.checkpoint_it} {self.checkpoint_pass} step {self.step}")
                 self.checkpoint_b, self.sample_checkpoint_b, self.optimizer_checkpoint_b = [os.path.join(self.ckpt_dir_load, f"{ckpt_prefix}_{ckpt_b_suffix}.ckpt") for ckpt_prefix in self.ckpt_prefixes[:3]]
                 if ckpt_f_suffix is not None:
                     self.resume_f = True
