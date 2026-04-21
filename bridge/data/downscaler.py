@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import torch
+import h5py
 
 
 class DownscalerDataset(torch.utils.data.Dataset):
